@@ -6,7 +6,7 @@ void ring_buf_init(ring_buf_p rbuf, unsigned int size)
 	rbuf->size = size;
 	rbuf->start = 0;
 	rbuf->end = 0;
-	rbuf->elems = kmalloc(rbuf->size,GFP_KERNEL);
+	rbuf->elems = kmalloc(rbuf->size * sizeof(int) ,GFP_KERNEL);
 }
 
 void ring_buf_free(ring_buf_p rbuf)

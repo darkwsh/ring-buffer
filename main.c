@@ -13,6 +13,8 @@ MODULE_AUTHOR("darkwsh");
 #define MAX_RD_THREAD 10
 
 static atomic_t v = ATOMIC_INIT(0);
+static atomic_t rd_v = ATOMIC_INIT(0);
+static atomic_t wr_v = ATOMIC_INIT(0);
 
 static struct task_struct *wr_threads[MAX_WR_THREAD];
 static struct task_struct *rd_threads[MAX_RD_THREAD];
@@ -30,11 +32,12 @@ static int rd_thread_do(void *data)
 		spin_lock(&lock);
 		if(!ring_buf_empty(&rbuf)){
 			ring_buf_read(&rbuf,&val);
-			printk("Val is : %d .\n",val);
+			atomic_dec(&v);
+			atomic_inc(&rd_v);
 		}
 		spin_unlock(&lock);
 		msleep(10);
-	}while(!kthread_should_stop());
+	}while(!kthread_should_stop() || ring_buf_empty(&rbuf));
 	return 0;
 }
 
@@ -69,6 +72,7 @@ static int wr_thread_do(void *data)
 			val++;
 			ring_buf_write(&rbuf,&val);
 			atomic_inc(&v);
+			atomic_inc(&wr_v);
 		}
 		spin_unlock(&lock);
 		msleep(10);
@@ -92,7 +96,6 @@ static int create_wr_threads(void)
 static void cleanup_wr_threads(void)
 {
 	int i;
-	printk("wr_thread clean");
 	for ( i = 0; i < MAX_WR_THREAD; i++){
 	      kthread_stop(wr_threads[i]);
 		wr_threads[i] = NULL;
@@ -119,6 +122,8 @@ static __exit void ring_buf_module_exit(void)
 	cleanup_rd_threads();
 	cleanup_wr_threads();
 	printk("At last, the number is : %d",atomic_read(&v));
+	printk("Total %d reads",atomic_read(&rd_v));
+	printk("Total %d writes", atomic_read(&wr_v));
 	return;
 }
 
