@@ -21,6 +21,7 @@ void ring_buf_clear (ring_buf_p rbuf);
 
 int ring_buf_full (ring_buf_p rbuf);
 int ring_buf_empty (ring_buf_p rbuf);
+int ring_buf_size (ring_buf_p rbuf);
 
 void ring_buf_write(ring_buf_p rbuf, int *elem);
 void ring_buf_read(ring_buf_p rbuf, int *elem);

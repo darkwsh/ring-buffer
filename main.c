@@ -37,7 +37,7 @@ static int rd_thread_do(void *data)
 		}
 		spin_unlock(&lock);
 		msleep(10);
-	}while(!kthread_should_stop() || ring_buf_empty(&rbuf));
+	}while(!kthread_should_stop());
 	return 0;
 }
 
@@ -121,9 +121,12 @@ static __exit void ring_buf_module_exit(void)
 {
 	cleanup_rd_threads();
 	cleanup_wr_threads();
-	printk("At last, the number is : %d",atomic_read(&v));
-	printk("Total %d reads",atomic_read(&rd_v));
-	printk("Total %d writes", atomic_read(&wr_v));
+	printk("At last, the number is : %d\n",atomic_read(&v));
+	printk("Total %d reads\n",atomic_read(&rd_v));
+	printk("Total %d writes\n", atomic_read(&wr_v));
+	printk("Last %d elems.\n", ring_buf_size(&rbuf));
+	ring_buf_free(&rbuf);
+	ring_buf_clear(&rbuf);
 	return;
 }
 

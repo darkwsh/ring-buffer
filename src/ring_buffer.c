@@ -31,6 +31,11 @@ int ring_buf_full(ring_buf_p rbuf)
 	return rbuf->end == (rbuf->start ^ rbuf->size);
 }
 
+int ring_buf_size(ring_buf_p rbuf)
+{
+	return rbuf->end - rbuf->start;
+}
+
 int ring_buf_incr(ring_buf_p rbuf, unsigned int p)
 {
 	return (p+1)&(2*rbuf->size-1);
